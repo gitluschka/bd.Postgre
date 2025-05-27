@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>SecureLog</title>
+  <style>
+    body { font-family: sans-serif; }
+    .container { max-width: 350px; margin: 40px auto; }
+    input, button { width: 100%; margin: 8px 0; padding: 8px; font-size: 16px; }
+    h2 { margin-top: 32px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>SecureLog <span>🛡️</span></h1>
+    <h2>Регистрация</h2>
+    <input id="reg-name" placeholder="Имя">
+    <input id="reg-email" placeholder="Email">
+    <input id="reg-pass" type="password" placeholder="Пароль">
+    <button id="reg-btn">Зарегистрироваться</button>
+    <h2>Вход</h2>
+    <input id="login-email" placeholder="Email">
+    <input id="login-pass" type="password" placeholder="Password">
+    <button id="login-btn">Войти</button>
+    <div id="msg" style="color: #b00; margin: 10px 0;"></div>
+  </div>
+  <script src="js/auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Профиль | SecureLog</title>
+  <style>
+    body { font-family: sans-serif; }
+    .container { max-width: 350px; margin: 40px auto; }
+    #profile { margin-top: 18px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Профиль SecureLog</h1>
+    <div id="profile"></div>
+    <button onclick="logout()">Выйти</button>
+    <h3>Изменить email</h3>
+    <form id="emailForm">
+      <input type="email" id="newEmail" required>
+      <button type="submit">Сохранить</button>
+    </form>
+    <h3>Последние действия</h3>
+    <ul id="logs"></ul>
+  </div>
+  <script>
+    const apiBase = "https://localhost:3000";
+    async function apiGet(url) {
+      const token = localStorage.getItem('token');
+      const res = await fetch(apiBase + url, { headers: { Authorization: 'Bearer ' + token } });
+      if (res.status === 401) { logout(); throw new Error('Unauthorized'); }
+      return await res.json();
+    }
+    async function apiPost(url, data) {
+      const token = localStorage.getItem('token');
+      const res = await fetch(apiBase + url, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', Authorization: 'Bearer ' + token},
+        body: JSON.stringify(data)
+      });
+      if (res.status === 401) { logout(); throw new Error('Unauthorized'); }
+      return await res.json();
+    }
+    function logout() { localStorage.removeItem('token'); window.location = 'index.html'; }
+    async function loadProfile() {
+      const profile = await apiGet('/api/me');
+      document.getElementById('profile').innerText = "Имя: " + profile.name + "\nEmail: " + profile.email;
+      const logs = await apiGet('/api/me/logs');
+      document.getElementById('logs').innerHTML = logs.map(l => `<li>${l.action} (${l.ts})</li>`).join('');
+    }
+    loadProfile();
+    document.getElementById('emailForm').onsubmit = async e => {
+      e.preventDefault();
+      const email = document.getElementById('newEmail').value;
+      await apiPost('/api/me/email', { email });
+      loadProfile();
+    };
+  </script>
+</body>
+</html>
