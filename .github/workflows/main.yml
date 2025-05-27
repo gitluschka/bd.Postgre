@@ -1,0 +1,53 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: securelog
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=5
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 20
+
+    - name: Install dependencies
+      run: |
+        cd bd.Postgre/backend
+        npm install
+
+    - name: Setup database schema
+      run: |
+        sudo apt-get install -y postgresql-client
+        cd bd.Postgre/backend
+        psql -h localhost -U postgres -d securelog -f db/functions.sql
+        psql -h localhost -U postgres -d securelog -f db/triggers.sql
+      env:
+        PGPASSWORD: postgres
+
+    - name: Try start server
+      run: |
+        cd bd.Postgre/backend
+        node server.js &
+        sleep 5
+        curl -k https://localhost:3000 || true
